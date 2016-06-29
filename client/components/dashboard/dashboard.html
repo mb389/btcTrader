@@ -1,15 +1,44 @@
 <div id="container">
 
-  <div class="controls">
+  <div class="info">
     <h2>Trade Controls</h2>
     BTC Spot: {{ vm.spot | currency }}
-    <div class="component">
+    <br><br>
+    <form name="tradepanel" class="form-inline">
+      <div class="form-group">
+        <label for="quantity">Quantity</label>
+          <input id="quantity"
+            name="input"
+            class="form-control"
+            type="number"
+            ng-model="vm.quantity"
+            min="1"
+            max="100"
+            required>
+      </div>
+      <div class="form-group">
+          <button class="btn btn-success" ng-disabled="!tradepanel.$valid" ng-click="vm.submitTrade(vm.quantity)">Buy</button>
+      </div>
+      <div class="form-group">
+        <button class="btn btn-danger" ng-disabled="!tradepanel.$valid"
+          ng-click="vm.submitTrade(vm.quantity)">Sell</button>
+      </div>
+      <div class="form-group">
+        <button class="btn btn-info"
+          ng-click="vm.priceUpdate()">Refresh Prices/P&L</button>
+      </div>
+    </form>
+    </div>
+  </div>
+
+  <div class="info">
+    <div class="item">
       <h2>Positions</h2>
     </div>
-    <div class="component">
+    <div class="item">
       <h2>P&L</h2>
     </div>
-    <div class="component">
+    <div class="item">
       <h2>Trade History</h2>
     </div>
   </div>
