@@ -41,7 +41,7 @@ gulp.task('lintJS', function () {
 });
 
 gulp.task('buildJS', ['lintJS'], function () {
-    return gulp.src(['./client/components/app.js', './client/components/**/*.js'])
+    return gulp.src(['./client/components/app.module.js', './client/components/**/*.js'])
         .pipe(plumber())
         .pipe(sourcemaps.init())
         .pipe(concat('main.js'))
@@ -50,12 +50,12 @@ gulp.task('buildJS', ['lintJS'], function () {
         .pipe(gulp.dest('./public'));
 });
 
-gulp.task('testServerJS', function () {
-    require('babel-core/register');
-	return gulp.src('./tests/server/*.js', {
-		read: false
-	}).pipe(mocha({ reporter: 'spec' }));
-});
+// gulp.task('testServerJS', function () {
+//     require('babel-core/register');
+// 	return gulp.src('./tests/server/*.js', {
+// 		read: false
+// 	}).pipe(mocha({ reporter: 'spec' }));
+// });
 
 // gulp.task('testServerJSWithCoverage', function (done) {
 //     gulp.src('./server/**/*.js')
@@ -107,7 +107,7 @@ gulp.task('buildCSSProduction', function () {
 });
 
 gulp.task('buildJSProduction', function () {
-    return gulp.src(['./client/components/app.js', './client/components/**/*.js'])
+    return gulp.src(['./client/components/app.module.js', './client/components/**/*.js'])
         .pipe(concat('main.js'))
         .pipe(babel())
         .pipe(ngAnnotate())

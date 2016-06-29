@@ -17,7 +17,6 @@ var startServer = function () {
 
 }
 
-
 startDb
 .then(createApplication)
 .then(startServer)
