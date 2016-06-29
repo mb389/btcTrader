@@ -11,7 +11,7 @@
       return factory;
 
       function getTradePx(type) {
-        return $http.get(`/price/${type}`)
+        return $http.get(`/data/price/${type}`)
               .then(res => JSON.parse(res.data).data.amount)
               .catch(err => console.log(err))
       }
