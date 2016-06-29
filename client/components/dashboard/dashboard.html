@@ -1,5 +1,6 @@
 <div id="container">
-  <chart></chart>
+
+  <nvd3 options="vm.options" data="vm.data"></nvd3>
   <div class="info">
     <h2>Trade Controls</h2>
     BTC Spot: {{ vm.spot | currency }}
