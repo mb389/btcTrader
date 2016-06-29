@@ -9,8 +9,16 @@ angular
       url: '/',
         templateUrl: '/components/dashboard/dashboard.html',
         controller: 'DashCtrl',
-        controllerAs: 'vm'
+        controllerAs: 'vm',
+        resolve: {
+          btcSpot: getSpotPx
+        }
     })
+  }
+
+  getSpotPx.$inject = ['DashFactory']
+  function getSpotPx(DashFactory) {
+    return DashFactory.getTradePx('spot')
   }
 
 

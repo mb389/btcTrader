@@ -3,10 +3,10 @@
     .module('mainApp')
     .controller(DashCtrl);
 
-    DashCtrl.$inject = ['DashFactory']
-    function DashCtrl(DashFactory) {
+    DashCtrl.$inject = ['DashFactory','btcSpot']
+    function DashCtrl(DashFactory,btcSpot) {
 
-      return {};
+      console.log(btcSpot)
 
 
     }
