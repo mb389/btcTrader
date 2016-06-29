@@ -25,7 +25,7 @@
 
       /////////////////////////////
 
-      function submitTrade(q,type) {
+      function submitTrade(q,type) { //TODO: finish lot tracking
         console.log(q,type)
         DashFactory.getTradePx(type)
         .then(px => {
@@ -38,7 +38,6 @@
           }
           else {
             vm.trades.push({t: new Date(), px, q: -q}); //track trade history
-            //TODO: short lot tracking
             vm.position -= q;
           }
           updateChart();
