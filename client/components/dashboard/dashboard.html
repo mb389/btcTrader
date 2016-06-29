@@ -44,6 +44,9 @@
     </div>
     <div class="item">
       <h2>Trade History</h2>
+      <div ng-repeat="trade in vm.trades">
+        {{trade.t.toString()}} : {{trade.q}} @ {{trade.px | currency}}
+      </div>
     </div>
   </div>
 </div>

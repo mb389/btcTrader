@@ -30,8 +30,17 @@
         DashFactory.getTradePx(type)
         .then(px => {
           vm.pxStream[type].push([Date.now(),px]) //track prices
-          if (type === 'buy') vm.position += q;
-          else vm.position -= q;
+
+          if (type === 'buy') {
+            lots.push({t: new Date(), px, q}); //track lots
+          }
+          else {
+            q*=-1;
+            //TODO: short lot tracking
+          }
+          vm.trades.push({t: new Date(), px, q}); //track trade history
+          vm.position += q;
+          recalcPNL();
         })
         .catch(err => console.log(err))
 
@@ -46,11 +55,20 @@
             vm.pxStream.spot.push([Date.now(),px])
             vm.spot = px;
             console.log(vm.pxStream)
+            recalcPNL();
           } else {
             console.log("no new price available")
           }
         })
         .catch(err => console.log(err))
+      }
+
+      function recalcPNL() {
+        var costBasis=0;
+        lots.forEach(lot => {
+          costBasis+=lot.px*lot.q;
+        })
+        vm.unrealPNL = vm.position * vm.spot - costBasis;
       }
 
     }
