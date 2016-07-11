@@ -18,11 +18,11 @@
             required>
       </div>
       <div class="form-group">
-          <button class="btn btn-success" ng-disabled="!tradepanel.$valid" ng-click="vm.submitTrade(vm.tradeQuantity,'buy')">Buy</button>
+          <button class="btn btn-success" ng-disabled="!tradepanel.$valid" ng-click="vm.submitTrade(vm.tradeQuantity)">Buy</button>
       </div>
       <div class="form-group">
         <button class="btn btn-danger" ng-disabled="!tradepanel.$valid"
-          ng-click="vm.submitTrade(vm.tradeQuantity,'sell')">Sell</button>
+          ng-click="vm.submitTrade(-vm.tradeQuantity)">Sell</button>
       </div>
       <div class="form-group">
         <button class="btn btn-info"

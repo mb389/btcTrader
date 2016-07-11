@@ -25,36 +25,94 @@
 
       /////////////////////////////
 
-      function submitTrade(q,type) { //TODO: finish lot tracking
-        console.log(q,type)
-        DashFactory.getTradePx(type)
-        .then(px => {
-          vm.pxStream[type].push([Date.now(),px]) //track prices
-
-          if (type === 'buy') {
-            vm.trades.push({t: new Date(), px, q}); //track trade history
-            lots.push({t: new Date(), px, q}); //track lots
-            vm.position += q;
-          }
-          else {
-            vm.trades.push({t: new Date(), px, q: -q}); //track trade history
-            vm.position -= q;
-          }
-          updateChart();
-          recalcPNL();
-        })
-        .catch(err => console.log(err))
+      function submitTrade(q) {
+        if (q>0) {
+         DashFactory.getTradePx('buy')
+         .then(px => processTrade(Number(q),Number(px)))
+         .catch(() => {
+           console.log("falling back to stale buy px")
+           processTrade(Number(q),vm.pxStream.buy[vm.pxStream.buy.length-1])
+         })
+       } else {
+         DashFactory.getTradePx('sell')
+         .then(px => processTrade(Number(q),Number(px)))
+         .catch(() => {
+           console.log("falling back to stale sell px")
+           processTrade(Number(q),vm.pxStream.sell[vm.pxStream.sell.length-1])
+         })
+       }
       }
 
-      setInterval(priceUpdate,10000)
+      function processTrade(q,px) {
+      var newTrade = {t: new Date(), px, q};
+      vm.trades.push(angular.extend({},newTrade))
+
+      if (q > 0) {
+        vm.pxStream.buy.push(px)
+        console.log("buying ",q," @ ",px)
+
+        if (vm.position < 0) { //closing short
+          var amtBot = q;
+          while (amtBot > 0) {
+            if (amtBot >= Math.abs(lots[lots.length-1].q)) {
+              var lastLot=lots.pop()
+              amtBot+=lastLot.q;
+              vm.realPNL+=(lastLot.q*px-lastLot.q*lastLot.px)
+              console.log("realPNL impact ",(lastLot.q*px-lastLot.q*lastLot.px))
+            } else {
+              lots[lots.length-1].q+=amtBot;
+              vm.realPNL+=(amtBot*px-amtBot*lots[lots.length-1].px)
+              console.log("realPNL impact ",(amtBot*px-amtBot*lots[lots.length-1].px))
+              amtBot=0;
+            }
+            if (!lots.length) {
+              lots.push({q: amtBot, px});
+              break;
+            }
+          }
+        } else lots.push(angular.extend({},newTrade));
+      } else {
+        console.log("selling ",q," @ ",px)
+        vm.pxStream.sell.push(px)
+
+        var amtSold = Math.abs(q);
+        while (amtSold > 0) {
+          if (amtSold >= lots[lots.length-1].q) {
+            var lastLot=lots.pop()
+            amtSold-=lastLot.q;
+            vm.realPNL+=(lastLot.q*px-lastLot.q*lastLot.px)
+            console.log("realPNL impact",(lastLot.q*px-lastLot.q*lastLot.px))
+          } else {
+            lots[lots.length-1].q-=amtSold;
+            vm.realPNL+=(amtSold*px-amtSold*lots[lots.length-1].px)
+            console.log("realPNL impact", (amtSold*px-amtSold*lots[lots.length-1].px))
+            amtSold=0;
+          }
+          if (!lots.length) {
+            console.log("net short!")
+            lots.push({q: -amtSold, px})
+            break;
+          }
+        }
+
+      }
+      vm.position += q;
+      vm.data[0].values.push({x: Date.now(), y: vm.position}) //update graph
+      vm.data[1].values.push({x: Date.now(), y: vm.spot}) //update graph
+      console.log("lots",lots)
+      recalcPNL();
+    }
+
+      setInterval(priceUpdate,10000) //refresh price every 10s
+
       function priceUpdate() {
         console.log("updating...")
         DashFactory.getTradePx('spot')
         .then(px => {
-          if (Number(px) !== vm.spot) {
+          if (px !== vm.spot) {
             vm.pxStream.spot.push([Date.now(),px])
             vm.spot = px;
-            console.log(vm.pxStream)
+            console.log("price stream: ",vm.pxStream)
             updateChart();
             recalcPNL();
           } else {
@@ -78,6 +136,7 @@
       }
 
       //chart data
+      //TODO: move chart out to directive
       vm.data = [
         {
           "key" : "Quantity" ,
@@ -107,7 +166,7 @@
               forceY: [-50,100]
           },
           lines: {
-            forceY: [vm.spot-25,vm.spot+25]
+            forceY: [vm.spot-15,vm.spot+15]
           },
           color: ['grey', 'darkred'],
           x: function(d,i) { return i },
