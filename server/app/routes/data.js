@@ -4,7 +4,7 @@ var rp = require('request-promise')
 
 router.get('/price/:type', (req, res, next) => {
   var type = req.params.type;
-  rp(`https://api.coinbase.com/v2/prices/${type}?currency=USD`)
+  rp(`https://api.coinbase.com/v2/prices/BTC-USD/${type}`)
   .then(px => res.json(px))
   .catch(err => console.log(err))
 })

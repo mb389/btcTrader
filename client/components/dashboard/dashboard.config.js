@@ -18,7 +18,7 @@
 
     getSpotPx.$inject = ['DashFactory']
     function getSpotPx(DashFactory) {
-      return DashFactory.getTradePx('spot')
+      return DashFactory.getTradePx()
     }
 
 })();

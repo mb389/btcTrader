@@ -27,28 +27,20 @@
     /////////////////////////////
 
     function submitTrade(q) {
-      if (q>0) {
-       DashFactory.getTradePx('buy')
+       DashFactory.getTradePx(q)
        .then(px => processTrade(Number(q),Number(px)))
        .catch(() => {
-         console.log("falling back to stale buy px")
-         processTrade(Number(q),vm.pxStream.buy[vm.pxStream.buy.length-1])
+         console.log("falling back to stale px")
+         if (q > 0) processTrade(Number(q),vm.pxStream.buy[vm.pxStream.buy.length-1])
+         else processTrade(Number(q),vm.pxStream.sell[vm.pxStream.sell.length-1])
        })
-     } else {
-       DashFactory.getTradePx('sell')
-       .then(px => processTrade(Number(q),Number(px)))
-       .catch(() => {
-         console.log("falling back to stale sell px")
-         processTrade(Number(q),vm.pxStream.sell[vm.pxStream.sell.length-1])
-       })
-     }
     }
 
     function processTrade(q,px) {
       var newTrade = {t: new Date(), px, q};
       vm.trades.push(angular.extend({},newTrade))
 
-      if (q > 0) {
+      if (q > 0) { // buy
         vm.pxStream.buy.push(px)
         console.log("buying ",q," @ ",px)
 
@@ -72,26 +64,26 @@
             }
           }
         } else lots.push(angular.extend({},newTrade));
-      } else {
+      } else { // sell
         console.log("selling ",q," @ ",px)
         vm.pxStream.sell.push(px)
 
-        var amtSold = Math.abs(q);
-        while (amtSold > 0) {
-          if (amtSold >= lots[lots.length-1].q) {
+        var amtSold = q;
+        while (amtSold < 0) {
+          if (amtSold <= lots[lots.length-1].q) {
             var lastLot=lots.pop()
-            amtSold-=lastLot.q;
+            amtSold+=lastLot.q;
             vm.realPNL+=(lastLot.q*px-lastLot.q*lastLot.px)
             console.log("realPNL impact",(lastLot.q*px-lastLot.q*lastLot.px))
           } else {
-            lots[lots.length-1].q-=amtSold;
+            lots[lots.length-1].q+=amtSold;
             vm.realPNL+=(amtSold*px-amtSold*lots[lots.length-1].px)
             console.log("realPNL impact", (amtSold*px-amtSold*lots[lots.length-1].px))
             amtSold=0;
           }
           if (!lots.length) {
             console.log("net short!")
-            lots.push({q: -amtSold, px})
+            lots.push({q: amtSold, px})
             break;
           }
         }
@@ -103,7 +95,7 @@
     recalcPNL();
   }
 
-    setInterval(priceUpdate,10000) //refresh price every 10s
+    setInterval(priceUpdate,50000) //refresh price every 10s
 
     function priceUpdate() {
       console.log("updating...")
