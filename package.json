@@ -17,6 +17,7 @@
     "angular": "^1.5.5",
     "angular-ui-bootstrap": "^1.3.2",
     "angular-ui-router": "^0.2.18",
+    "angular-websocket": "^2.0.1",
     "babel": "^6.5.2",
     "body-parser": "^1.15.1",
     "chalk": "^1.1.3",

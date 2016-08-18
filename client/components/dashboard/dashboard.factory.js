@@ -3,8 +3,8 @@
     .module('mainApp')
     .factory('DashFactory',DashFactory);
 
-    DashFactory.$inject = ['$http']
-    function DashFactory($http) {
+    DashFactory.$inject = ['$http','$websocket']
+    function DashFactory($http,$websocket) {
       var factory = {
         getTradePx
       }
